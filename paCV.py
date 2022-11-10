@@ -3,7 +3,7 @@ import cv2
 import sys
 from  PIL  import Image
 
-#카메라 위치 고려하여 길이를 측정
+#카메라 위치 고려하여 길이를 측정 기능?
 
 #상태 : 구현 전(input type 필요)
 #기능 : 이미지 파일 타입 변환
@@ -74,3 +74,4 @@ def area2weight(pakind,area):
         print("ERROR: wrond pa ID")
         return -1
     
+pass
