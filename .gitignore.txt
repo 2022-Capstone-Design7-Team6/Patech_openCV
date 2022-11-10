@@ -1,0 +1,9 @@
+_pycache_/
+Alg0/
+Alg1/
+Alg2/
+before/
+alpha.py
+canny_edge.py
+Figure.png
+hsvPicker.py
