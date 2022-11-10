@@ -46,7 +46,15 @@ def paPic(img,ratio,potTopCentimeter):#파사진을 찍었을 때 맨위 위치�
     widthCM= heightCM*len(img[0])/len(img)
     allArea = heightCM*widthCM
     
-    return round(countPixel*allArea/countAllPixel,1)
+    area = round(countPixel*allArea/countAllPixel,1)
+    for g in range(len(green_mask)):
+        if np.count_nonzero(green_mask[g])>=2:
+            heightpx = len(green_mask)-g
+            break
+    heightpx = heightpx - int(ratio*len(img))
+    height = round(heightpx*heightCM/len(img),1)
+    
+    return area,height
     
 #상태 : 구현완료
 #기능 : 두 이미지 파 넓이 차이 계산
@@ -64,14 +72,12 @@ def paHarv(before_img,after_img,ratio, potTopCentimeter):#수확시, 두 파사�
 #입력 : pakind=종류(대파=0,쪽파=1,양파=2) area=넓이(cm^2)
 #출력 : 무게(g)
 def area2weight(pakind,area):
-    if pakind ==0:
-        pass
-    elif pakind ==1:
-        pass
-    elif pakind==2:
-        pass
+    cm2weight = [2,1,1]
+    if pakind ==0 or pakind ==1 or pakind ==2:
+        return area * cm2weight[pakind]
     else :
         print("ERROR: wrond pa ID")
         return -1
     
-pass
+def harvExp(heights):
+    pass
