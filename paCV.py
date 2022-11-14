@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import sys
 import datetime
-
 #카메라 위치 고려하여 길이를 측정 기능?
 
 #상태 : 구현 전(input type 필요)
@@ -18,7 +17,7 @@ def convert2NdArray(img):  #change type to ndarray and dtype is np.uint8  !!!타
 #기능 : 파 넓이 계산
 #입력 : image=ndarray , pakind=종류(대파=0,쪽파=1,양파=2) ,ratio=0~1, potTopCentimeter=cm
 #출력 : [넓이(cm^2), 높이(cm), 무게(g)]
-def paImg2AHW(img,paType, ratio,potTopCentimeter):#파사진을 찍었을 때 맨위 위치의 위로 파란색부분을 찾아 넓이계산
+def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨위 위치의 위로 파란색부분을 찾아 넓이계산
     area2weight = [2,1,1]#대파, 쪽파, 양파
     pxH = len(img)
     pxW = len(img[0])
@@ -45,23 +44,29 @@ def paImg2AHW(img,paType, ratio,potTopCentimeter):#파사진을 찍었을 때 �
     
     #여러케이스를 합함
     green_mask=green_mask+green_mask2+green_mask3
+
     #top 아래는 모두 0으로 바꿈
     green_mask[pxH-potTopPixel:, :]=0
     
     #if you want to see output..2
     newImg = cv2.bitwise_and(original, original, mask = green_mask)
-    cv2.imwrite('result6.png', newImg)
+    cv2.namedWindow("AfterImg",0)
+    cv2.resizeWindow("AfterImg", 500, 700)
+    cv2.imshow('AfterImg',newImg)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
     
     #calculate area ,height, weight
     countGreenPixel=0
     heightRow = 0
     for row in range(pxH):
         temp  =np.count_nonzero(green_mask[row])
-        if heightRow==0 and temp >=2: #1 could be not accurate
+        if heightRow==0 and temp >=3: #1 could be not accurate
             heightRow = row
         countGreenPixel+=temp
     countAllPixel = pxH*pxW
-    heightCM = potTopCentimeter/ratio
+    heightCM = topCentimeter/ratio
     widthCM= heightCM*pxW/pxH
     allArea = heightCM*widthCM
     greenArea = round(allArea*countGreenPixel/countAllPixel,1)
@@ -70,6 +75,10 @@ def paImg2AHW(img,paType, ratio,potTopCentimeter):#파사진을 찍었을 때 �
     height = round(heightCM*heightRows/pxH,1)
     
     weight = round(greenArea*area2weight[paType],1)
+    
+    
+    
+    
     return [greenArea,height,weight]
     
 #상태 : 구현완료
@@ -89,5 +98,7 @@ def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, �
 #출력 : 수확 시기...?
 def harvPredict(heightList):
     #[[datatime,50]]
-
+    #y = D(e^x-1)
+    #y' = De^x
+    #
     return True
