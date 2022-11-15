@@ -11,26 +11,27 @@ class user:
         self.ratio =ratio
         self.potTopCentimeter= potTopCentimeter
         self.heightList= heightList
-client1 = user(0.45,20,[[datetime.date(2022,11,1),0],[datetime.date(2022,11,30),10]])
+client1 = user(0.45,20,[[datetime.date(2022,11,1),0],[datetime.date(2022,11,15),20],[datetime.date(2022,11,30),30]])
 #example img data
-img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/H2.jpg")
-img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/G2.jpg")
+img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/d4.jpg")
+img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/d3.jpg")
 
 
 
 #-----GUIDE CODE-----#
 #def convert2NdArray(img=server image type)
-img = paCV.convert2NdArray(img)
-print('Image type is converted to ',type(img))
+#img = paCV.convert2NdArray(img)
+#print('Image type is converted to ',type(img))
 
 #def paImg2AHW(img,paType, ratio,potTopCentimeter)
 output = paCV.paImg2AHW(img,0,client1.ratio,client1.potTopCentimeter)
 print('Output of paImg2AHW is List : ',output,'(unit is cm^2, cm, g)')
 
 #def paHarvest(before_img,after_img,ratio, potTopCentimeter)
-output = paCV.paHarvest(img,img2,0,client1.ratio,client1.potTopCentimeter)
-print('Output of paHarvest is List : ',output,'(unit is cm^2, cm, g)')
+#output = paCV.paHarvest(img,img2,0,client1.ratio,client1.potTopCentimeter)
+#print('Output of paHarvest is List : ',output,'(unit is cm^2, cm, g)')
 
 #def harvPredict(heightList)
-output = paCV.harvPredict(client1.heightList)
-print('Output of harvPredict : ',output)
+#output = paCV.harvPredict(client1.heightList)
+#print('Output of harvPredict : ',output)
+

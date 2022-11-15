@@ -41,20 +41,22 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
     lower_green = (90, 50, 120)
     upper_green = (95, 70, 170)
     green_mask3 = cv2.inRange(newImg, lower_green, upper_green)
+    #색조 low case
+    lower_green = (20, 40, 40)
+    upper_green = (30, 150, 150)
+    green_mask4 = cv2.inRange(newImg, lower_green, upper_green)
     
     #여러케이스를 합함
-    green_mask=green_mask+green_mask2+green_mask3
+    green_mask=green_mask+green_mask2+green_mask3+green_mask4
 
     #top 아래는 모두 0으로 바꿈
     green_mask[pxH-potTopPixel:, :]=0
     
     #if you want to see output..2
     newImg = cv2.bitwise_and(original, original, mask = green_mask)
-    cv2.namedWindow("AfterImg",0)
-    cv2.resizeWindow("AfterImg", 500, 700)
     cv2.imshow('AfterImg',newImg)
     cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
 
     
     #calculate area ,height, weight
@@ -97,8 +99,8 @@ def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, �
 #입력 : heightList = [[datetime1,height1],[datetime2,height2],[datetime3,height3]...]
 #출력 : 수확 시기...?
 def harvPredict(heightList):
-    #[[datatime,50]]
-    #y = D(e^x-1)
-    #y' = De^x
-    #
+    first = heightList[0][0]
+    for h in heightList:
+        h[0] = (h[0]-first).days
+    print(heightList)
     return True
