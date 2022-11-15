@@ -11,10 +11,10 @@ class user:
         self.ratio =ratio
         self.potTopCentimeter= potTopCentimeter
         self.heightList= heightList
-client1 = user(0.45,20,[[datetime.date(2022,11,1),0],[datetime.date(2022,11,15),20],[datetime.date(2022,11,30),30]])
+client1 = user(0.35,20,[[datetime.date(2022,11,1),0],[datetime.date(2022,11,15),20],[datetime.date(2022,11,30),30]])
 #example img data
-img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/d4.jpg")
-img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/d3.jpg")
+img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p151.jpg")
+img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p152.jpg")
 
 
 

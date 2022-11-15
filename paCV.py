@@ -18,7 +18,7 @@ def convert2NdArray(img):  #change type to ndarray and dtype is np.uint8  !!!타
 #입력 : image=ndarray , pakind=종류(대파=0,쪽파=1,양파=2) ,ratio=0~1, potTopCentimeter=cm
 #출력 : [넓이(cm^2), 높이(cm), 무게(g)]
 def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨위 위치의 위로 파란색부분을 찾아 넓이계산
-    area2weight = [2,1,1]#대파, 쪽파, 양파
+    area2weight = [0.35385,0.16667,0.13846]#대파, 쪽파, 양파
     pxH = len(img)
     pxW = len(img[0])
     potTopPixel =int(pxH*ratio)
@@ -54,8 +54,9 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
     
     #if you want to see output..2
     newImg = cv2.bitwise_and(original, original, mask = green_mask)
-    cv2.imshow('AfterImg',newImg)
-    cv2.waitKey(0)
+    cv2.imwrite('result1.png',newImg)
+    #cv2.imshow('result',newImg)
+    #cv2.waitKey(0)
 
 
     
@@ -88,7 +89,7 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
 #입력 : before_image=ndarray , after_image=ndarray , ratio=0~1, potTopCentimeter=cm
 #출력 : 두 이미지 [넓이(cm^2), 높이(cm), 무게(g)] 의 차
 def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, 두 파사진이 동시에 왔을 때 차를 반환 완료
-    diff= [round(a - b,1) for a, b in zip(paImg2AHW(after_img,paType, ratio, potTopCentimeter), paImg2AHW(before_img,paType,ratio, potTopCentimeter) )]
+    diff= [round(a - b,1) for a, b in zip(paImg2AHW(before_img,paType, ratio, potTopCentimeter), paImg2AHW(after_img,paType,ratio, potTopCentimeter) )]
     if diff[0]<0 :
         return 'ERROR, pa is grown..'
     else :
