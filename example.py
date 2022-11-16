@@ -13,7 +13,7 @@ class user:
         self.heightList= heightList
 client1 = user(0.35,20,[[datetime.date(2022,11,1),0],[datetime.date(2022,11,15),20],[datetime.date(2022,11,30),30]])
 #example img data
-img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p151.jpg")
+img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/dd1.jpg")
 img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p152.jpg")
 
 
@@ -25,7 +25,7 @@ img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p152.jpg")
 
 #def paImg2AHW(img,paType, ratio,potTopCentimeter)
 output = paCV.paImg2AHW(img,0,client1.ratio,client1.potTopCentimeter)
-print('Output of paImg2AHW is List : ',output,'(unit is cm^2, cm, g)')
+print('Output of paImg2AHW is List : ',output[0],output[1],output[2],'(unit is cm^2, cm, g)')
 
 #def paHarvest(before_img,after_img,ratio, potTopCentimeter)
 #output = paCV.paHarvest(img,img2,0,client1.ratio,client1.potTopCentimeter)
