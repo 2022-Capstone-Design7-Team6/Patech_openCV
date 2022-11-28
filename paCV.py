@@ -2,6 +2,10 @@ import numpy as np
 import cv2
 import sys
 import datetime
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+import math
+
 #카메라 위치 고려하여 길이를 측정 기능?
 
 #상태 : 구현 전(input type 필요)
@@ -18,7 +22,7 @@ def convert2NdArray(img):  #change type to ndarray and dtype is np.uint8  !!!타
 #입력 : image=ndarray , pakind=종류(대파=0,쪽파=1,양파=2) ,ratio=0~1, potTopCentimeter=cm
 #출력 : [넓이(cm^2), 높이(cm), 무게(g)]
 def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨위 위치의 위로 파란색부분을 찾아 넓이계산
-    wantToReturnOutputImg = False
+    wantToReturnOutputImg = True
     
     area2weight = [0.35385,0.16667,0.13846]#대파, 쪽파, 양파
     pxH = len(img)
@@ -32,29 +36,17 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
         original = img 
     
     newImg = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #S too high case
-    lower_green = (25, 200, 5)
-    upper_green = (97, 255, 100)
-    green_mask = cv2.inRange(newImg, lower_green, upper_green)
-    #S high case
-    lower_green = (20, 80, 24)
-    upper_green = (90, 255, 255)
-    green_mask2 = cv2.inRange(newImg, lower_green, upper_green)
-    #S mid case
-    lower_green = (30, 40, 20)
-    upper_green = (90, 80, 255)  #90 이상 재정의 
-    green_mask3 = cv2.inRange(newImg, lower_green, upper_green)
-    #S mid and H high case
-    lower_green = (90, 45, 130)
-    upper_green = (95, 70, 255)  
-    green_mask4 = cv2.inRange(newImg, lower_green, upper_green)
-    #S low case
-    lower_green = (45, 20, 50) # 20이였는데 일단 50
-    upper_green = (89, 50, 255)
-    green_mask5 = cv2.inRange(newImg, lower_green, upper_green)
+    green_bound = [
+                    [(25, 200, 5),(97, 255, 100)], #S too high case
+                    [(20, 80, 24),(90, 255, 255)], #S high case
+                    [(30, 40, 20),(90, 80, 255)], #S mid case
+                    [(90, 45, 130),(95, 70, 255)],#S mid and H high case
+                    [(45, 20, 50),(89, 50, 255)] #S low case
+                    ]
     
-    #여러케이스를 합함
-    green_mask=green_mask+green_mask2+green_mask3+green_mask4+green_mask5
+    green_mask = cv2.inRange(newImg, green_bound[0][0], green_bound[0][1])
+    for i in range(1,len(green_bound)):
+        green_mask+=cv2.inRange(newImg, green_bound[i][0], green_bound[i][1])
 
     #top 아래는 모두 0으로 바꿈
     green_mask[pxH-potTopPixel:, :]=0
@@ -62,7 +54,7 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
     #if you want to see output..2
     if wantToReturnOutputImg:
         newImg = cv2.bitwise_and(original, original, mask = green_mask)
-    #cv2.imwrite("C:/Users/minby/Desktop/codes/capstone/after/result1.png",newImg)
+    cv2.imwrite("C:/Users/minby/Desktop/codes/capstone/after/result1.png",newImg)
     #cv2.imshow('result',newImg)
     #cv2.waitKey(0)
 
@@ -109,9 +101,65 @@ def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, �
 #기능 : 성장 곡선 예측, 수확시기 예측
 #입력 : heightList = [[datetime1,height1],[datetime2,height2],[datetime3,height3]...]
 #출력 : 수확 시기...?
-def harvPredict(heightList):
-    first = heightList[0][0]
-    for h in heightList:
+def harvPredict(weightList):
+    first = weightList[0][0]
+    for h in weightList:
         h[0] = (h[0]-first).days
-    print(heightList)
-    return True
+
+    inputX = [ h[0] for h in weightList]
+    inputY =[ h[1] for h in weightList]
+    for xx in range(len(inputX)):
+        if inputX[xx]==0:
+            inputX[xx]+=0.01
+    for yy in range(len(inputY)):
+        if inputY[yy]==0:
+            inputY[yy]+=0.01
+    #criteria of harvest
+    harvestCriteria = 2
+
+    #convert X
+    X = np.array([[he] for he in inputX])
+    minError = [0,1000000000] #minError maxWeight, minErrorValue, minError 수확날짜?!?
+    for i in range(max(inputY)+1,70):
+        tempError = 0
+        #log(-y/y-1) = x 임을 이용!!!(0<y<1 이어야함)  이렇게 하면 y= 1/(1+e^-(ax+b)) 를 예측 가능!  
+        maximumWeight = i #이 값에 따라 너무 많이 바뀜.... 그럼 maxumumSize를 inputY 최대값에서부터 하나씩 ..? 늘려가면서 최대무게 측정! 
+        #convert Y
+        reductY = np.divide(np.array(inputY),maximumWeight) #Later, we have to convert this. e^(logTheY) = input Y no is not......
+        #log(-y/(y-1)) = x
+        Y = np.log(np.negative(reductY)/(reductY-1))
+        model = LinearRegression()
+        model.fit(X,Y)
+        for i in range(len(inputX)):
+            ex = math.exp(model.coef_*inputX[i]+model.intercept_)
+            tempError+= abs(ex*maximumWeight/(1+ex)-inputY[i]) #평균절대오차
+        # print(maximumWeight,tempError)
+        if tempError<minError[1]:
+            minError[1]=tempError
+            minError[0]=maximumWeight
+
+    maximumWeight = minError[0]
+    reductY = np.divide(np.array(inputY),maximumWeight)
+    Y = np.log(np.negative(reductY)/(reductY-1))
+    model = LinearRegression()
+    model.fit(X,Y)
+
+    #if you want to see graph
+    # xs = np.arange(0,50,1)
+    # ex =np.exp(model.coef_*xs+model.intercept_)
+    # ys = ex*maximumWeight/(1+ex)
+    # plt.scatter(inputX,inputY,  alpha=0.3)
+    # plt.plot(xs,ys,'r-',lw=3)
+    # plt.show()
+    
+    if (minError[0]-harvestCriteria) < max(inputY):
+        harvest_date = first + datetime.timedelta(days=max(inputX))
+        
+    else:
+        tempY = (minError[0]-harvestCriteria)/minError[0]
+        tempX = (math.log(-tempY/(tempY-1))-model.intercept_)//model.coef_
+        harvest_date =  first + datetime.timedelta(days=int(tempX[0]))
+    return harvest_date
+
+
+
