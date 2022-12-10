@@ -1,22 +1,21 @@
 import numpy as np
 import cv2
-import sys
 import datetime
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import math
 
-#상태 : input type 필요
+#상태 : Input Type을 알아야해요
 #기능 : 이미지 파일 타입 변환
 #입력 : 서버 상 이미지 type
 #출력 : ndarray (dtype = uint8)
-def convert2NdArray(img):  #change type to ndarray and dtype is np.uint8  !!!타입을 알아야함
+def convert2NdArray(img):  #change type to ndarray and dtype is np.uint8  
     if type(img) !=np.ndarray :
         print("Type is not numpy.ndarray")
     return img
 
-#상태 : 업그레이드 중 두께 가중치 추가 고려..
-#기능 : 파 넓이 계산
+#상태 : 구현완료
+#기능 : 파 길이/넓이/무게 계산
 #입력 : image=ndarray , pakind=종류(대파=0,쪽파=1,양파=2) ,ratio=0~1, potTopCentimeter=cm
 #출력 : [넓이(cm^2), 높이(cm), 무게(g)]
 def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨위 위치의 위로 파란색부분을 찾아 넓이계산
@@ -85,7 +84,7 @@ def paImg2AHW(img,paType, ratio,topCentimeter):#파사진을 찍었을 때 맨�
     return [greenArea,height,weight]
     
 #상태 : 구현완료
-#기능 : 두 이미지 파 넓이 차이 계산
+#기능 : 두 이미지 파 길이/넓이/무게 차이 계산
 #입력 : before_image=ndarray , after_image=ndarray , ratio=0~1, potTopCentimeter=cm
 #출력 : 두 이미지 [넓이(cm^2), 높이(cm), 무게(g)] 의 차
 def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, 두 파사진이 동시에 왔을 때 차를 반환 완료
@@ -95,12 +94,12 @@ def paHarvest(before_img,after_img,paType,ratio, potTopCentimeter):#수확시, �
     else :
         return diff
     
-#상태 : 구현완료 최적화 및 오류제어
-#기능 : 성장 곡선 예측, 수확시기 예측
+#상태 : 구현완료
+#기능 : 성장 곡선 예측, 수확시기 예측, 수확시 무게 예측
 #입력 : heightList = [[datetime1,weight1],[datetime2,weight2],[datetime3,weight3]...]
 #출력 : 수확 시기, 수확 시 무게
 def harvPredict(weightList,paType):
-    #최고 높이를 찾음 거기서 harvestCriteria=2? 가 작은 날을 반환.
+    #최고 높이를 찾음 거기서 harvestCriteria=2 ? 가 작은 날을 반환.
     #만약 최고 높이와 현재 식물의 높이가 2가 차이가 안난다고 판단되면 수확을 진행 
     #criteria of harvest
     harvestCriteria = 0.1
@@ -129,7 +128,7 @@ def harvPredict(weightList,paType):
         tempError = 0
         #log(-y/y-1) = x 임을 이용!!!(0<y<1 이어야함)  이렇게 하면 y= 1/(1+e^-(ax+b)) 를 예측 가능!  
         #convert Y
-        reductY = np.divide(np.array(inputY),curMaxWeight) #Later, we have to convert this. e^(logTheY) = input Y no is not......
+        reductY = np.divide(np.array(inputY),curMaxWeight) 
         #log(-y/(y-1)) = x
         Y = np.log(np.negative(reductY)/(reductY-1))
         model = LinearRegression()

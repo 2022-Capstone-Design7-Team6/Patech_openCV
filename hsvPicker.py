@@ -183,12 +183,16 @@ def webCam_boundTester(green_bound):
 
 
 #what's your green bound?
-green_bound = [
-                    [(25, 200, 5),(97, 255, 100)], #S too high case
-                    [(20, 80, 24),(90, 255, 255)], #S high case
-                    [(30, 40, 20),(90, 80, 255)], #S mid case
-                    [(90, 45, 130),(95, 70, 255)],#S mid and H high case
-                    [(45, 20, 50),(89, 50, 255)] #S low case
+# green_bound = [
+#                     [(25, 200, 5),(97, 255, 100)], #S too high case
+#                     [(20, 80, 24),(90, 255, 255)], #S high case
+#                     [(30, 40, 20),(90, 80, 255)], #S mid case
+#                     [(90, 45, 130),(95, 70, 255)],#S mid and H high case
+#                     [(45, 20, 50),(89, 50, 255)] #S low case
+#                     ]
+
+green_bound =[#단일마스크
+                    [(30, 80, 80),(70, 255, 255)]
                     ]
 
 mode = 2
@@ -201,5 +205,6 @@ elif mode ==2: #test green_bound
 elif mode ==3: #use web cam of green masking
     webCam_boundTester(green_bound)
 else:
+    print("wrong mode")
     pass
 
