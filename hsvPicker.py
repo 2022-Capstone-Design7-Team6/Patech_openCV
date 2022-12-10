@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import ast
-
+import sklearn.svm as svm
 
 #원하는 픽셀의 HSV값을 확인
 def color_picker():
@@ -12,7 +12,7 @@ def color_picker():
     global lines
     global lines2
     #input file
-    img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/after/dd3.jpg")
+    img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/kakao1.jpg")
     #size division
     divide = 6
     #read green list
@@ -54,11 +54,11 @@ def color_picker():
 def mouse_click(event, x,y, flags, param):
     if event == cv2.EVENT_FLAG_LBUTTON:
         lines.append(newImg[y][x].tolist())
-        print(newImg[y][x])
+        print("Added Green Pixel:",newImg[y][x])
         cv2.imshow("pick",img)
     elif event == cv2.EVENT_FLAG_RBUTTON:
         lines2.append(newImg[y][x].tolist())
-        print(newImg[y][x])
+        print("Added non-Green Pixel:",newImg[y][x])
         cv2.imshow("pick",img)
 
 def color_organize():
@@ -106,7 +106,7 @@ def color_organize():
     lines = set(list(map(tuple,lines)))
     lines = list(lines)
     lines = list(map(list,lines))
-    lines.sort(key = lambda x : (x[0],x[1],x[2]))
+    lines.sort(key = lambda x : (x[1],x[0],x[2]))
     file.write(str(lines))
     file.close()
     
@@ -115,18 +115,91 @@ def color_organize():
     lines2 = set(list(map(tuple,lines2)))
     lines2 = list(lines2)
     lines2 = list(map(list,lines2))
-    lines2.sort(key = lambda x : (x[0],x[1],x[2]))
+    lines2.sort(key = lambda x : (x[1],x[0],x[2]))
     file2.write(str(lines2))
     file2.close()
     lines = set(list(map(tuple,lines)))
     lines2 = set(list(map(tuple,lines2)))
-    print(len(lines),len(lines2))
-    print(set(lines)&set(lines2))
+    print("length of green.txt:",len(lines),"\nlength of nonGreen.txt:",len(lines2))
+    print("repitition in two txt : ",set(lines)&set(lines2))
     plt.show()
 
-mode = 0
+def bound_tester(green_bound):
+    file = open("C:/Users/minby/Desktop/codes/capstone/green.txt",'r')
+    lines = file.read()
+    lines=lines.strip()
+    lines = ast.literal_eval(lines)
+    file.close()
+    
+    file2 = open("C:/Users/minby/Desktop/codes/capstone/notGreen.txt",'r')
+    lines2 = file2.read()
+    lines2=lines2.strip()
+    lines2 = ast.literal_eval(lines2)
+    file2.close()
+    ErrGreen=0
+    ErrnGreen=0
+    for line in lines:
+        found = False
+        for g in green_bound:
+            if g[0][0]<=line[0] and line[0]<=g[1][0] and g[0][1]<=line[1] and line[1]<=g[1][1] and g[0][2]<=line[2] and line[2]<=g[1][2]:
+                found = True
+                break
+        if found == False:
+            print("This green pixel is out of green_bound : ",line)
+            ErrGreen+=1
+    
+    for line2 in lines2:
+        found = False
+        for g in green_bound:
+            if g[0][0]<=line2[0] and line2[0]<=g[1][0] and g[0][1]<=line2[1] and line2[1]<=g[1][1] and g[0][2]<=line2[2] and line2[2]<=g[1][2]:
+                found = True
+                break
+        if found == True:
+            print("This non-green pixel is in the green_bound : ",line2)
+            ErrnGreen+=1
+    print("green.txt: error/all =",ErrGreen,'/',len(lines))
+    print("notGreen.txt: error/all =",ErrnGreen,'/',len(lines2))
+    
+def webCam_boundTester(green_bound):
+    webcam = cv2.VideoCapture(0)
+    if not webcam.isOpened():
+        print("Could not open webcam")
+        exit()
+
+    while webcam.isOpened():
+        status, frame = webcam.read()
+
+        if status:
+            green_mask = cv2.inRange(frame, green_bound[0][0], green_bound[0][1])
+            for i in range(1,len(green_bound)):
+                green_mask+=cv2.inRange(frame, green_bound[i][0], green_bound[i][1])
+            frame = cv2.bitwise_and(frame, frame, mask = green_mask)
+            cv2.imshow("press q to exist", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    webcam.release()
+    cv2.destroyAllWindows()
+
+
+
+#what's your green bound?
+green_bound = [
+                    [(25, 200, 5),(97, 255, 100)], #S too high case
+                    [(20, 80, 24),(90, 255, 255)], #S high case
+                    [(30, 40, 20),(90, 80, 255)], #S mid case
+                    [(90, 45, 130),(95, 70, 255)],#S mid and H high case
+                    [(45, 20, 50),(89, 50, 255)] #S low case
+                    ]
+
+mode = 2
 if mode==0: # pick HSV
     color_picker()
-else : # organize HSV code 
+elif mode==1 : # organize HSV code 
     color_organize()
+elif mode ==2: #test green_bound
+    bound_tester(green_bound)
+elif mode ==3: #use web cam of green masking
+    webCam_boundTester(green_bound)
+else:
+    pass
 

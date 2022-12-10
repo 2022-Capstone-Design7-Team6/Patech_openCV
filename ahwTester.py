@@ -4,7 +4,7 @@ import paCV
 import cv2
 
 dir_path = "C:/Users/minby/Desktop/codes/capstone/before/"
-ratio = 0.4
+ratio = 0.1
 topCentimeter = 20
 
 

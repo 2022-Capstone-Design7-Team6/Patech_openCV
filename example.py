@@ -3,6 +3,7 @@ import paCV
 import cv2
 import numpy
 import datetime
+
 #-----EXAMPLE USER DATA-----#
 #example user database
 class user:
@@ -10,6 +11,7 @@ class user:
         self.ratio =ratio
         self.potTopCentimeter= potTopCentimeter
         self.weightList= weightList
+        
 client1 = user(0.1,20, #datetimeDate, 무게로 ! 수확날짜 중간에 없음! 
                [[datetime.date(2022,10,10),1],
                 [datetime.date(2022,10,11),2],
@@ -19,6 +21,7 @@ client1 = user(0.1,20, #datetimeDate, 무게로 ! 수확날짜 중간에 없음!
                 [datetime.date(2022,10,16),21],
                 # [datetime.date(2022,10,21),6]
                  ])
+
 #example img data
 # img = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/real1.jpg")
 # img2 = cv2.imread("C:/Users/minby/Desktop/codes/capstone/before/p152.jpg")
